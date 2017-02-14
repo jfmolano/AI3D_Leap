@@ -31,9 +31,13 @@ var paused = false;
 
 // Setup Leap loop with frame callback function
 var controllerOptions = {};
+var pos_manos = "No manos"
 
 // to use HMD mode:
 // controllerOptions.optimizeHMD = true;
+
+var pos = 0;
+var id = setInterval(frame_obj, 5);  
 
 Leap.loop(controllerOptions, function(frame) {
   if (paused) {
@@ -42,7 +46,6 @@ Leap.loop(controllerOptions, function(frame) {
 
   // Display Frame object data
   var frameOutput = document.getElementById("frameData");
-
   var frameString = "- - - TEXTO - - -"
 
   //frameOutput.innerHTML = "<div style='width:300px; float:left; padding:5px'>" + frameString + "</div>";
@@ -51,28 +54,32 @@ Leap.loop(controllerOptions, function(frame) {
   if (frame.hands.length > 0) {
     for (var i = 0; i < frame.hands.length; i++) {
       if(frame.hands.length == 2){
-        frameString = "Izquierda y Derecha";
+        pos_manos = "Izquierda y Derecha";
+        frameString = pos_manos;
       }
       else{
         var hand = frame.hands[i];
         if(hand.type == "left"){
           //hand.grabStrength
           //hand.pinchStrength
-          frameString = "Izquierda";
+          pos_manos = "Izquierda";
+          frameString = pos_manos;
         }
         if(hand.type == "right"){
           //hand.grabStrength
           //hand.pinchStrength
-          frameString = "Derecha";
+          pos_manos = "Derecha";
+          frameString = pos_manos;
         }   
       }
     }
   }
   else {
-    frameString = "No manos";
+    pos_manos = "No manos";
+    frameString = pos_manos;
   }
 
-  frameOutput.innerHTML = "<div style='width:100%; float:left; padding:5px;font-size: 100px;'>" + frameString + "</div>";
+  frameOutput.innerHTML = "<div style='width:100%; float:left; padding:5px;font-size: 15px;'>" + frameString + "</div>";
 
   // Store frame for motion functions
   previousFrame = frame;
@@ -97,7 +104,41 @@ function togglePause() {
   }
 }
 
+function frame_obj() {
+    if (pos > 800) {
+      pos = 800;
+    } else if(pos < 0){
+      pos = 0;
+    } else{
+      if(pos_manos == "Izquierda"){
+        pos--;
+      }else if(pos_manos == "Derecha"){
+        pos++;
+      }
+    }
+
+    var elem = document.getElementById("animate");
+    elem.style.left = pos + 'px'; 
+  }
+
 </script>
+<style>
+#container {
+  width: 800px;
+  height: 50px;
+  position: relative;
+  background: black;
+}
+#animate {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  -webkit-border-radius: 25px;
+  -moz-border-radius: 25px;
+  border-radius: 25px;
+  background-color: red;
+}
+</style>
 </head>
 <body>
 <h1>Leap Motion JavaScript Sample</h1>
@@ -106,6 +147,8 @@ function togglePause() {
   <h3>Mano:</h3>
   <div id="frameData"></div>
   <div style="clear:both;"></div>
+  <div id ="container">
+  <div id ="animate"></div>
 </div>
 </body>
 </html>
